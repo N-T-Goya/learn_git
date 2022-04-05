@@ -1,0 +1,29 @@
+#!/bin/sh
+
+echo "[post-commit hook] Commit done!"
+
+exec < /dev/tty
+echo "\033[0;33m[pre-push hook] Please check the branch, commit message, committer name and email."
+commit=`git log -1`
+branch=`git rev-parse --abbrev-ref HEAD`
+echo "\033[0;35mBranch:$branch"
+echo "\033[0;36m$commit"
+push_cancel_message="\033[0;31mPush canceled.\nTo cancel last commit use command:\ngit reset --soft HEAD~1\n\n"
+push_success_message="\033[0;32mPushed successfully."
+echo "\033[0;33m"
+while true; do
+    read -p "If it correct press y otherwise press n (y/N): " yn
+    if [ "$yn" = "" ]; then
+        yn='n'
+        echo  ${push_cancel_message}
+        exit 1
+    fi
+    if [ "$yn" = "y" ]; then
+        echo ${push_success_message}
+        exit 0
+    else
+        echo ${push_cancel_message}
+        exit 1
+    fi
+    exit 1
+done
